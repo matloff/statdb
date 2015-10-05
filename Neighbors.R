@@ -45,14 +45,17 @@ nbrs <-
       x <- z[i,]
       # find distances from x to all rows of z
       dxz <- as.matrix(mypdist(x,z)@dist)
-      # back in the original matrix, select the desired neighborhood
-      zneigh <- zsave[dxz < eps,,drop=FALSE]
-      nzn <- nrow(zneigh)
-      # if the only neighbor is this obs. itself, NA it
-      if (nzn == 1) {
+      # who is near x, other than itself?
+      xnb <- which(dxz < eps)
+      xnb <- setdiff(xnb,i)
+      # nobody?
+      if (length(xnb) == 0) {
          zperturb[i,] <- NA
          next
       }
+      # back in the original matrix, select the desired neighborhood
+      zneigh <- zsave[xnb,,drop=FALSE]
+      nzn <- nrow(zneigh)
       for (j in 1:p) {
          newi <- sample(1:nzn,1)
          zperturb[i,j] <- zneigh[newi,j]
