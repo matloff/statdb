@@ -16,7 +16,7 @@
 # value:  perturbed database
 
 nbrs <- 
-      function(z,eps=0.1*sqrt(ncol(z)),modprop=1.00,wts=NULL,cls=NULL) {
+      function(z,eps,modprop=1.00,wts=NULL,cls=NULL) {
    require(pdist)
    if (!is.null(cls)) {
       require(partools)
