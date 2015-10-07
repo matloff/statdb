@@ -267,6 +267,13 @@ the following tuning tuning parameters:
 
 \end{itemize}
 
+In setting these parameters, the DBA must take into account not only the
+desired balance between statistical fidelity and privacy, but also the
+values of $n$ and $p$.  For fixed $p$, the larger $n$ is, the fewer the
+number of uniquely identifiable individuals in the data, and thus the
+decreased need for privacy measures.  On the other hand, for fixed $n$,
+the larger the value of $p$, the more potential identifiable uniques.
+
 Code implementing the method is provided on GitHub ({\it
 https://github.com/matloff/statdb}) to implemeent the method.  The call
 form is
