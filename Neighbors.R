@@ -1,4 +1,6 @@
 
+# author:  N. Matloff
+
 # code to implement NeighborSynth method for data disclosure avoidance
 
 # arguments:
