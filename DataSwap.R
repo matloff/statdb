@@ -1,6 +1,4 @@
 
-NOT DONE YET
-
 # author:  N. Matloff
 
 # code to implement the data swapping method for statistical disclosure
@@ -22,33 +20,47 @@ NOT DONE YET
 # variables that are swapped are specified in sa
 
 dswap <- function(ind,sk,sa,sp=1.00) {
-   inds <- ind[orderbycols[ind),]
+   inds <- ind[orderbycols(ind[,sk]),]
    n <- nrow(inds)
-   blocs <- getblocks(inds,sk)
+   blocks <- getblocks(inds,sk)
+   nb <- nrow(blocks)
+   for (i in 1:nb) {
+      s <- blocks[i,1]
+      e <- blocks[i,2]
+      # which indices will be swapped?
+      nswap <- ceiling(sp*(e-s+1))
+      swapindices <- sample(s:e,nswap)
+      # and where will they go?
+      newindices <- sample(swapindices,nswap)
+      # do the swap
+      inds[swapindices,sa] <- inds[newindices,sa]
+   }
+   inds
 }
 
 # since inds has been sorted, records with like keys will be blocked
 # together; this function finds the start and stop row numbers for the
 # blocks
-getblockranges <- functio(inds,sk() {
+getblocks <- function(inds,sk) {
+   n <- nrow(inds)
    blocks <- NULL
    startblock <- 1
-   while (1) {
+   while (1) {  # each iteration deals with a new block
       # keys combination for this block
-      bloickky <- inds[startblock,sk]
+      blockkey <- as.numeric(inds[startblock,sk])
       # find end of this block
-      i <- startblock + 1
-      while (1) {
-         if (inds[i,sk] != bloickky) {
+      if (startblock >= n) return(blocks)
+      for (i in (startblock+1):n) {
+# if (i == 100) browser()
+         # each iteration looks at next record in block
+         if (!identical(as.numeric(inds[i,sk]),blockkey)) {
             endblock <- i - 1
             break
          }
-         blocks <- rbind(blocsk,c(startblock,endblock))
-         i <- i + 1
-         if (i > n) {
-            # have 1-row block at end of data frame, so done
-            return(inds)
+         if (i == n) endblock <- n
       }
+      blocks <- rbind(blocks,c(startblock,endblock))
+      startblock <- i + 1
    }
 }
 
