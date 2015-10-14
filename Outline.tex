@@ -34,7 +34,9 @@ multivariate in nature.  Yet preserving the multivariate structure of
 the data can be challenging, especially when both continuous and
 categorical variables are present.  Here we present a new SDL method 
 that automatically attains the correct multivariate structure,
-regardless of whether the data are continuous, categorical or mixed.
+regardless of whether the data are continuous, categorical or mixed.  In
+addition, operational methods for assessing data quality and risk will
+be explored.
 
 \end{abstract}
 
@@ -57,7 +59,7 @@ from a cryptographic background, have viewed the data itself as the
 primary focus.  In other words, in the computer science approach, the
 `S' in SDL has perhaps had lesser attention, compared to the
 statisticians' view of things.  However, there is some indication of
-increasing interaction between the two groups \cite{abowd}.
+increasing interaction between the two groups \cite{abowd} \cite{duchi}.
 
 For an overview of how methodology has been refined and expanded over
 time, compare a 1989 survey paper \cite{adam}, a 2002 Census Bureau
@@ -93,19 +95,19 @@ not all of the other major classes of SDL methods.
 
 Developing methodology for the mixed continuous/discrete case is a
 difficult problem; see \cite{manrique} and the citations therein for
-some existing methodology.  To broaden the methods available to DBAs, a
-new method is proposed in this paper to deal with the multivariate
-structure preservation problem. Our method has several important
-advantages:
+some existing methodology.  To broaden the methods available to Data
+Stewardship Organizations (DSOs), a new method is proposed in this paper
+to deal with the multivariate structure preservation problem. Our method
+has several important advantages:
 
 \begin{itemize}
 
 \item The method works on general data, i.e.\ continuous, discrete or
 mixed. 
 
-\item The method does not require the database administrator (DBA) to
-estimate the dependency structure between the variables, or make
-assumptions regarding that structure.
+\item The method does not require the DSO to estimate the dependency
+structure between the variables, or make assumptions regarding that
+structure.
 
 \item The method has several tuning parameters, affording database
 administrator broad flexibility in attaining the desired balance between
@@ -243,17 +245,17 @@ similarity to our neighborhoods.
 But actually the two methods are quite different.  First, with data
 swapping, records from one stratum are switched with those in {\it
 another} stratum, whereas in our method everything stays within the same
-neighborhood.  This is very important, because with data swapping,
-choosing the stratifying variables precludes analysts doing statistical
-analyses that including those variables.
-
-Moreover, our swapping is done on individual variables, not entire
-records, and our neighborhoods can grow or shrink in size, as opposed to
+neighborhood.  
+% This is very important, because with data swapping,
+% choosing the stratifying variables precludes analysts doing statistical
+% analyses that include those variables.
+Moreover, 
+our neighborhoods can grow or shrink in size, as opposed to
 the fixed stratum size in data swapping.  
 
 \section{Code and Tuning Parameters}
 
-The method provides the DBA with excellent flexibility in achieving the
+The method provides the DSO with excellent flexibility in achieving the
 desired balance between privacy and accurate multivariate structure, via
 the following tuning tuning parameters:
 
@@ -266,13 +268,6 @@ the following tuning tuning parameters:
 \item The proportion of modified records.  
 
 \end{itemize}
-
-In setting these parameters, the DBA must take into account not only the
-desired balance between statistical fidelity and privacy, but also the
-values of $n$ and $p$.  For fixed $p$, the larger $n$ is, the fewer the
-number of uniquely identifiable individuals in the data, and thus the
-decreased need for privacy measures.  On the other hand, for fixed $n$,
-the larger the value of $p$, the more potential identifiable uniques.
 
 Code implementing the method is provided on GitHub ({\it
 https://github.com/matloff/statdb}) to implement the method.  The call
@@ -299,13 +294,61 @@ some population), one would want $\epsilon$ to become smaller, but this
 would not work well for the discrete variables.  With large $n$, the
 latter would come to dominate the distance metric, and one could not
 drop $\epsilon$ below some minimum threshhold.  Thus the {\bf wts}
-argument provides the DBA with a tool to reduce that dominance, by
+argument provides the DSO with a tool to reduce that dominance, by
 allowing the weights of the discrete variables (or others) to decrease
 as $n$ increases.
 
 If for example we set {\bf wts = c(5,12,13,rep(0.6,3))}. then in
 computing distances the variables in columns 5, 12 and 13 of the data
 matrix are reduced in weight by a factor of 0.6.  
+
+\section{Selection of Tuning Parameters}
+
+In some modern statistical methods, the user is faced with selection of
+a large number of tuning parameters, both numeric and policy-oriented,
+such as in the SIS package \cite{fan}.  The user may find the task of
+setting those parameters daunting and bewildering.
+
+In SDL settings, though, the DSO may {\it welcome} the selection of
+tuning parameters. Achieving a good balance between accuracy of the
+released data and disclosure risk, so from the DSO's point of view, the
+more tuning parameters the better.
+
+For a given set of tuning parameters, the DSO wishes to assess
+
+\begin{itemize}
+
+\item [(a)]
+whether the results of the analysis on the our released data set are
+reasonbly close to those of the original data, and 
+
+\item [(b)]
+whether records that were at risk in the original data are masked 
+sufficiently well in the released data.
+
+\end{itemize}
+
+In setting these parameters, the DSO must take into account not only the
+desired balance between (a) and (b), but also the values of $n$ and $p$.
+For fixed $p$, the larger $n$ is, the fewer the number of uniquely
+identifiable individuals in the data, and thus the decreased need for
+privacy measures.\footnote{As noted, we are treating the data as a
+sample from some (tangible or conceptual) population.  As such, the
+notion of a {\it population unique}, seen in some of the SDL literature,
+doesn't apply.  If a combination of the categorical variables appears in
+our data, then by definition that combination has nonzero probability in
+the population, and we'll get more and more individuals of that type as
+$n$ grows.  For continuous variables, a similar statement holds in the
+sense that as $n$ grows, we will have more and more individuals near the
+given value.} On the other hand, for fixed $n$, the larger the value of
+$p$, the more potential identifiable uniques.
+
+Regarding (a), we propose an operational approach.\footnote{We have not
+seen this in the literature, though it is likely that some DSOs have
+experimented with this approach.}  Though many authors have proposed
+global measures of distance between the original and released data sets,
+we suggest gauging the accuracy of the latter in a manner that is
+motivted by the intended usag of the data, namely statistical analyses.
 
 \section{Example}
 
@@ -314,13 +357,6 @@ https://github.com/matloff/regtools}) to simulate an employee
 database, sampling 5000 records from this data.\footnote{Since this is
 just an illustration, the data were not cleaned, and some WageIncome
 values were 0 that probably should have been designated as missing.}
-
-To set the value of $\epsilon$ and the other tuning parameters, the DBA
-may devise a few representative statistical analyses, and then assess
-whether (a) the results of the analysis on the our released data set are
-reasonbly close to those of the original data and (b) whether records
-that were at risk in the original data are masked sufficiently well in
-the released data.
 
 The call used was
 
@@ -399,7 +435,7 @@ the given conditions:
 \end{lstlisting}
 
 This of course just barely scratches the surface of the various tuning
-parameter values that the DBA could experiment with, in addition to
+parameter values that the DSO could experiment with, in addition to
 doing so on other types of analyses, say principle components analysis.
 
 
@@ -432,7 +468,7 @@ make the data useless for nefarious purposes (while still being very
 useful for legitimate purposes).
 
 In databases with large $p$, one must take into account the Curse of
-Dimensionality \cite{beyer}.  The DBA may choose to use a weighted
+Dimensionality \cite{beyer}.  The DSO may choose to use a weighted
 distance metric, with the weights going to 0 as the variable index goes
 to infinity \cite{matloff2015}.
 
@@ -440,6 +476,14 @@ In general, the choice of $\epsilon$ must also be made carefully
 This approach does require fairly large data sets, so that for example
 the set $S$ contains some female workers.  One might even allow the
 value of $\epsilon$ to vary from record to record.
+
+\section{Work to Be Done}
+
+The presentation here is of course preliminary, and many aspects need to
+be explored.  The method will be tried on a wide variety of data sets;
+effects of varying the tuning parameters will be explored; the possible
+usefulness of making the values of the tuning parameters vary from one
+record to another will be investigated; and so on.
 
 \begin{thebibliography}{}
 
@@ -465,6 +509,10 @@ Agrawal {\it et al} (es.), 1-19.
 
 \bibitem{duncan} Duncan, G., Elliot, M., Salazar, G. (2011).  {\it
 Statistical Confidentiality: Principles and Practice}, Springer. 
+
+\bibitem{fan} J. Fan, Y. Feng, D. Saldana, R. Samworth and Y. Wu (2015).
+``Package `SIS''', CRAN, {\it
+https://cran.r-project.org/web/packages/SIS/index.html},
 
 \bibitem{kim} J. Kim (1986).  A Method for Limiting Disclosure in
 Microdata Based on Random Noise and Transformation, {\it Proceedings of
