@@ -275,7 +275,7 @@ decreased need for privacy measures.  On the other hand, for fixed $n$,
 the larger the value of $p$, the more potential identifiable uniques.
 
 Code implementing the method is provided on GitHub ({\it
-https://github.com/matloff/statdb}) to implemeent the method.  The call
+https://github.com/matloff/statdb}) to implement the method.  The call
 form is
 
 \begin{lstlisting}
@@ -311,7 +311,9 @@ matrix are reduced in weight by a factor of 0.6.
 
 We used the Census data set in the package {\bf regtools} ({\it
 https://github.com/matloff/regtools}) to simulate an employee
-database, sampling 1000 records from this data.
+database, sampling 5000 records from this data.\footnote{Since this is
+just an illustration, the data were not cleaned, and some WageIncome
+values were 0 that probably should have been designated as missing.}
 
 To set the value of $\epsilon$ and the other tuning parameters, the DBA
 may devise a few representative statistical analyses, and then assess
@@ -319,69 +321,62 @@ whether (a) the results of the analysis on the our released data set are
 reasonbly close to those of the original data and (b) whether records
 that were at risk in the original data are masked sufficiently well in
 the released data.
- 
-We ran a linear regression analysis, predicting WageIncome from Age,
-Gender, WeeksWorked, MSDegree and PhD.  Suppose this (simulated) firm is
-concerned about possible gender discrimination withim the firm. Then
-they might focus on the estimated regression coefficient for
-Gender.\footnote{In a real study many more variables would
-need to be included.  Note too that the data was not cleaned before use;
-for instance, some values for WageIncome are 0 but
-clearly should not be.}.
 
-
-In the original data, this is -10795.4, suggesting that women are on
-average paid about \$11,000 less than men of the same age, number of
-weeks worked, and educational level. 
-
-To produce the released data, the call used was
+The call used was
 
 \begin{lstlisting}
-p1p <- nbrs(p1,eps=0.3,wts=c(2,4,5,rep(0.2,3)))
+> p1p <- nbrs(p1,eps=0.3,wts=c(2,4,5,rep(0.05,3)))
 \end{lstlisting}
 
-The estimated Gender coefficient now became -10591.9, a change of about
-1.9\%, presumably acceptable to the DBA.  What about disclosure avoidance?
+To gauge how close this new version of the data was to the original, we 
+ran a linear regression analysis, predicting WageIncome from Age,
+Gender, WeeksWorked, MSDegree and PhD.  The estimated coefficients
+for the original and modified data were
 
-In the original data, there had been exactly one record, with a
-WeeksWorked value of 43, employee number 5016:\footnote{The
-employee numbers would be suppressed in actual usage.}
+\begin{table}
+\begin{center}
+\vskip 0.5in
+\begin{tabular}{|r|r|r|r|r|}
+\hline
+Age & Gender & WeeksWorked & MS & PhD \\ \hline 
+447.2 & -9591.7 & 1286.4 & 17333.0 & 21291.3 \\ \hline 
+518.8 & -8695.9 & 1300.9 & 17686.6 & 21953.4 \\ \hline 
+\end{tabular}
+\end{center}
+\caption{}
+\label{}
+\end{table}
+
+The results were quite good for the last three coefficients, and fairly
+good for the first two.
+
+In the original data set, there was one female worker with age under 31L
 
 \begin{lstlisting}
+> p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
           age sex wkswrkd ms phd wageinc
-5016 33.97025   1      43  0   0       0
+7997 30.79517   2      52  0   1  100000
 \end{lstlisting}
 
-Suppose, just as a simple example, that this employee happened to
-mention to an intruder that he had worked 43 weeks.  Would that expose
-his salary?
-
-In the released data, there is again one such record --- but now for
-employee number 3208:
+How well was she hidden in the modified data?  Quite well, it turns out:
 
 \begin{lstlisting}
-          age sex wkswrkd ms phd wageinc
-3208 36.46872   1      43  0   0       0
+> p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
+           age sex wkswrkd ms phd wageinc
+6240  25.22471   2       0  0   1       0
+6149  28.27956   2       0  0   1       0
+13485 26.42564   2      52  0   1   32000
+893   28.33435   2      52  0   1   49900
 \end{lstlisting}
 
-So, an intruder who knew that only one employee had worked 43 weeks 
-would not be able to identify the new record for employee number 5016,
-which happens to be this:
+There are now four women fitting the given conditions, none of which was
+the one we highlighted in the original data, worker number
+7997.\footnote{Of course, ID numbers would be suppressed.}
 
-\begin{lstlisting}
-          age sex wkswrkd ms phd wageinc
-5016 36.46872   1      40  0   0       0
-\end{lstlisting}
+NEXT MAKE A MORE RESTRICTED ONE, RESULTING IN NAS, AND THEN A MODPROP
+ONE; 
 
-This employee's value of WeeksWorked changed from 43 to 40.  On the
-other hand his (Gender = 1 meant male, 2 for female) age changed only
-slightly.  Might this have helped an intruder?  Possibly, but the
-intruder also knows that in the released data this particular employee
-may have been listed as female.  With several tuning paramenters
-available, the DBA has many ways in which to exploit this uncertainty in
-the intruder's mind.
 
-% code for the above; do not delete
 
 % library(regtools)
 % data(prgeng)
