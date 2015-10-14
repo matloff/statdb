@@ -333,19 +333,19 @@ ran a linear regression analysis, predicting WageIncome from Age,
 Gender, WeeksWorked, MSDegree and PhD.  The estimated coefficients
 for the original and modified data were
 
-\begin{table}
-\begin{center}
-\vskip 0.5in
+% \begin{table}
+% \begin{center}
+% \vskip 0.5in
 \begin{tabular}{|r|r|r|r|r|}
 \hline
 Age & Gender & WeeksWorked & MS & PhD \\ \hline 
 447.2 & -9591.7 & 1286.4 & 17333.0 & 21291.3 \\ \hline 
 518.8 & -8695.9 & 1300.9 & 17686.6 & 21953.4 \\ \hline 
 \end{tabular}
-\end{center}
-\caption{}
-\label{}
-\end{table}
+% \end{center}
+% \caption{}
+% \label{eps1}
+% \end{table}
 
 The results were quite good for the last three coefficients, and fairly
 good for the first two.
@@ -373,9 +373,34 @@ There are now four women fitting the given conditions, none of which was
 the one we highlighted in the original data, worker number
 7997.\footnote{Of course, ID numbers would be suppressed.}
 
-NEXT MAKE A MORE RESTRICTED ONE, RESULTING IN NAS, AND THEN A MODPROP
-ONE; 
+Next, we tried $\epsilon = 0.2$.  The new regression coefficients were
 
+
+% \begin{table}
+% \begin{center}
+% \vskip 0.5in
+\begin{tabular}{|r|r|r|r|r|}
+\hline
+Age & Gender & WeeksWorked & MS & PhD \\ \hline 
+492.5 & -10266.6 & 1284.2 & 18187.0 & 21649.7 \\ \hline 
+\end{tabular}
+% \end{center}
+% \caption{}
+% \label{eps2}
+% \end{table}
+
+Now, however, there were no workers in the modified data set satisfying
+the given conditions:
+
+\begin{lstlisting}
+> p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
+[1] age     sex     wkswrkd ms      phd     wageinc
+<0 rows> (or 0-length row.names)
+\end{lstlisting}
+
+This of course just barely scratches the surface of the various tuning
+parameter values that the DBA could experiment with, in addition to
+doing so on other types of analyses, say principle components analysis.
 
 
 % library(regtools)
