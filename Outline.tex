@@ -1,4 +1,4 @@
-% \documentclass[11pt]{asaproc}  
+% \documentclass[11pt]{asaproc}   
 \documentclass[11pt]{article}  
 \usepackage{graphicx}
 
@@ -310,17 +310,18 @@ such as in the SIS package \cite{fan}.  The user may find the task of
 setting those parameters daunting and bewildering.
 
 In SDL settings, though, the DSO may {\it welcome} the selection of
-tuning parameters. Achieving a good balance between accuracy of the
-released data and disclosure risk, so from the DSO's point of view, the
-more tuning parameters the better.
+tuning parameters. The goal is achieving a good balance between
+statistical accuracy of the released data and disclosure risk, so from
+the DSO's point of view, the more tuning parameters the better.
+
+\subsection{Choices}
 
 For a given set of tuning parameters, the DSO wishes to assess
 
 \begin{itemize}
 
-\item [(a)]
-whether the results of the analysis on the our released data set are
-reasonbly close to those of the original data, and 
+\item [(a)] whether the results of statistical  analyses on the released
+data set are reasonbly close to those of the original data, and 
 
 \item [(b)]
 whether records that were at risk in the original data are masked 
@@ -328,12 +329,56 @@ sufficiently well in the released data.
 
 \end{itemize}
 
+Regarding (a), we propose an operational approach.\footnote{We have not
+seen this in the literature, though it is likely that some DSOs have
+experimented with this approach.}  Though many authors have proposed
+global measures of distance between the original and released data sets,
+we suggest gauging the statistical accuracy of the latter in a more
+directmanner, motivted by the intended usage of the data, namely
+statistical analyses.
+
+In other words, under this approach the DSO would run several
+representative statistical analyses, say regression and principle
+components, on both the original and released data sets.  The DSO would
+then compare the resultss 
+
+Our approach to issue (b) is similarly practical.  The DSO identifies
+some representative (sample) uniques, and then tracks what happens to
+them in the released data.  Have they been hidden sufficiently well?
+
+We advocate these methods (which of course can be used in conjunciton
+with other methods) because they expose the system in ways that {\it
+directly} address the goals (a) and (b):
+
+\begin{itemize}
+
+\item No matter what SDL method is used -- noise addition, cell
+suppression, data swapping, our method introduced in this paper, etc.
+--- will necessarily result in some distortion to statistical analyses.
+The fact that two (empirical) distributions are close  of course does
+not imply that a given functional will have similar values on those two
+distributions.
+
+Thus is vital to get an idea {\it how much} distortion the statistical
+users of the data may need to tolerate.  This is what our approach
+addresses.
+
+\item An example in some of the SDL literature has involved preserving
+the privacy of the lone female electrical engineer in a company
+employee database.  The DSO can pose questions like this for their given
+data set, and find that, say,  while the female EE was hidden, the lone
+programmer over age 50 was not.
+
+\end{itemize}
+
+\subsection{The Roles of $n$ and $p$}
+
 In setting these parameters, the DSO must take into account not only the
-desired balance between (a) and (b), but also the values of $n$ and $p$.
-For fixed $p$, the larger $n$ is, the fewer the number of uniquely
-identifiable individuals in the data, and thus the decreased need for
-privacy measures.\footnote{As noted, we are treating the data as a
-sample from some (tangible or conceptual) population.  As such, the
+desired balance between (a) and (b) above, but also the values of $n$
+and $p$.  For fixed $p$, the larger $n$ is, the fewer the number of
+uniquely identifiable individuals in the data, and thus the decreased
+need for privacy measures.\footnote{As noted, we are treating the data
+as a sample from some (tangible or conceptual) population.  As such, the
 notion of a {\it population unique}, seen in some of the SDL literature,
 doesn't apply.  If a combination of the categorical variables appears in
 our data, then by definition that combination has nonzero probability in
@@ -342,13 +387,6 @@ $n$ grows.  For continuous variables, a similar statement holds in the
 sense that as $n$ grows, we will have more and more individuals near the
 given value.} On the other hand, for fixed $n$, the larger the value of
 $p$, the more potential identifiable uniques.
-
-Regarding (a), we propose an operational approach.\footnote{We have not
-seen this in the literature, though it is likely that some DSOs have
-experimented with this approach.}  Though many authors have proposed
-global measures of distance between the original and released data sets,
-we suggest gauging the accuracy of the latter in a manner that is
-motivted by the intended usag of the data, namely statistical analyses.
 
 \section{Example}
 
@@ -366,30 +404,31 @@ The call used was
 
 To gauge how close this new version of the data was to the original, we 
 ran a linear regression analysis, predicting WageIncome from Age,
-Gender, WeeksWorked, MSDegree and PhD.  The estimated coefficients
+Gender, WeeksWorked, MSDegree and PhD.  
+% set.seed(999999); p1p <- nbrs(p1,eps=0.6,wts=c(2,4,5,rep(0.2,3))); p1pc <- na.omit(p1p); p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
+The estimated coefficients
 for the original and modified data were
 
 % \begin{table}
 % \begin{center}
 % \vskip 0.5in
-\begin{tabular}{|r|r|r|r|r|}
+\begin{tabular}{|r|r|r|r|r|r|}
 \hline
-Age & Gender & WeeksWorked & MS & PhD \\ \hline 
-447.2 & -9591.7 & 1286.4 & 17333.0 & 21291.3 \\ \hline 
-518.8 & -8695.9 & 1300.9 & 17686.6 & 21953.4 \\ \hline 
+data & Age & Gender & WeeksWorked & MS & PhD \\ \hline 
+original & 447.2 & -9591.7 & 1286.4 & 17333.0 & 21291.3 \\ \hline 
+released & 466.1 & -8423.2 & 1270.7 & 18593.9 & 22161.4 \\ \hline 
 \end{tabular}
 % \end{center}
 % \caption{}
 % \label{eps1}
 % \end{table}
 
-The results were quite good for the last three coefficients, and fairly
-good for the first two.
+The results fairly good.  What about disclosure risk?
 
-In the original data set, there was one female worker with age under 31L
+In the original data set, there was one female worker with age under 31:
 
 \begin{lstlisting}
-> p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
+> p1[p1$sex==2 & p1$phd==1 & p1$age < 31,]
           age sex wkswrkd ms phd wageinc
 7997 30.79517   2      52  0   1  100000
 \end{lstlisting}
@@ -397,17 +436,31 @@ In the original data set, there was one female worker with age under 31L
 How well was she hidden in the modified data?  Quite well, it turns out:
 
 \begin{lstlisting}
+> p1pc <- na.omit(p1p)
 > p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
            age sex wkswrkd ms phd wageinc
-6240  25.22471   2       0  0   1       0
-6149  28.27956   2       0  0   1       0
-13485 26.42564   2      52  0   1   32000
-893   28.33435   2      52  0   1   49900
+12522 30.5725   2      52  0   1   50000 
 \end{lstlisting}
+
+There is one person listed in the released data of the given description
+(female, PhD, age $<$ 31).  But she is listed as having an income of
+\$50000 rather than \$10000.  In fact, it is a different person, worker
+number 12522, not 7997.\footnote{Of course, ID numbers would be suppressed.}
+Where is the latter now?
+
+\begin{lstlisting}
+> which(rownames(p1p) == 7997)
+[1] 3236
+> p1p[3236,]
+         age sex wkswrkd ms phd wageinc
+7997 31.9746   1      52  0   1  100000
+\end{lstlisting}
+
+Ah, she became a man!  That certainly hides her.  
 
 There are now four women fitting the given conditions, none of which was
 the one we highlighted in the original data, worker number
-7997.\footnote{Of course, ID numbers would be suppressed.}
+7997
 
 Next, we tried $\epsilon = 0.2$.  The new regression coefficients were
 
@@ -415,18 +468,18 @@ Next, we tried $\epsilon = 0.2$.  The new regression coefficients were
 % \begin{table}
 % \begin{center}
 % \vskip 0.5in
-\begin{tabular}{|r|r|r|r|r|}
+\begin{tabular}{|r|r|r|r|r|r|}
 \hline
-Age & Gender & WeeksWorked & MS & PhD \\ \hline 
-492.5 & -10266.6 & 1284.2 & 18187.0 & 21649.7 \\ \hline 
+data & Age & Gender & WeeksWorked & MS & PhD \\ \hline 
+relased & 520  & -9063  & 1278 & 18342 & 23532 \\ \hline 
 \end{tabular}
 % \end{center}
 % \caption{}
 % \label{eps2}
 % \end{table}
 
-Now, however, there were no workers in the modified data set satisfying
-the given conditions:
+Now there were no workers in the modified data set satisfying
+the given conditions, so again worker 7997 is protected:
 
 \begin{lstlisting}
 > p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
