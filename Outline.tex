@@ -1,5 +1,5 @@
 % \documentclass[11pt]{asaproc}   
-\documentclass[11pt]{article}  
+\documentclass[11pt]{article} 
 \usepackage{graphicx}
 
 \usepackage{times}
@@ -15,7 +15,7 @@ Automatically Preserving Multivariate Relations}
 Norman Matloff\thanks{Dept. of Computer Science, University of
 California, Davis}
 \and
-Patrick Tendick\thanks{Avaya}
+Patrick Tendick\thanks{Avaya Corp.}
 }
 
 \begin{document}
@@ -54,12 +54,12 @@ Long the field of statistical research, in recent years SDL issues have
 attracted the interest of computer scientists \cite{dwork}.  There has
 been a marked contrast in the approaches taken by the two communities:
 The statistical view is that of serving research analysts who wish to do
-classical inference from samples, while the computer scientists, coming
-from a cryptographic background, have viewed the data itself as the
-primary focus.  In other words, in the computer science approach, the
-`S' in SDL has perhaps had lesser attention, compared to the
-statisticians' view of things.  However, there is some indication of
-increasing interaction between the two groups \cite{abowd} \cite{duchi}.
+classical inference on samples from populations, while the computer
+scientists, coming from a cryptographic background, have viewed the data
+itself as the primary focus.  In other words, in the computer science
+approach, the `S' in SDL has perhaps had lesser attention, compared to
+the statisticians' view of things.  However, there is some indication of
+increasing interaction between the two groups \cite{abowd}.
 
 For an overview of how methodology has been refined and expanded over
 time, compare a 1989 survey paper \cite{adam}, a 2002 Census Bureau
@@ -67,16 +67,16 @@ viewpoint \cite{census2002}, the current statistical view \cite{duncan},
 and the more recent computer science approach \cite{dwork}.
 % \cite{winkler}.
 
-Whatever approach is taken, a primary goal remains statistical
-analysis by the end user.  And in order to perform meaningful
-statistical analysis on the data, {\bf one's methods must at least
-approximately preserve multivariate structure}.  Most ststistical
-analysis --- linear regression, logistic models, princple components
-analysis, the log-linear model and so on -- are inherently multivariate.
-Unfortunately, many existing SDL methods place little or no emphasis
-on this aspect, and this is an absolutely central issue.  
-Regression coefficient estimates, for instance, can turn out
-substantially biased as a result.  As noted in \cite{nivule},
+Whatever approach is taken, a primary goal remains statistical analysis
+by the end user.  And in order to perform meaningful statistical
+analysis on the data, {\bf one's methods must at least approximately
+preserve multivariate structure}.  Most ststistical analysis --- linear
+regression, logistic models, princple components analysis, the
+log-linear model and so on -- are inherently multivariate.
+Unfortunately, many existing SDL methods place little or no emphasis on
+this aspect, and this is an absolutely central issue.  Regression
+coefficient estimates, for instance, can turn out substantially biased
+as a result.  As noted in \cite{nivule},
 
 \begin{quote}
 ...[in using] noise addition techniques...the original data
@@ -109,8 +109,8 @@ mixed.
 structure between the variables, or make assumptions regarding that
 structure.
 
-\item The method has several tuning parameters, affording database
-administrator broad flexibility in attaining the desired balance between
+\item The method has several tuning parameters, affording DSO
+broad flexibility in attaining the desired balance between
 privacy and statistical usability.
 
 \end{itemize}
@@ -135,7 +135,7 @@ r_i = (W_{i1},...,W_{ip})
 \item With probability $1-q$, skip the next steps.
 
 \item Find the set $S$ of points in the data set within $\epsilon$
-distance of $r_i$.
+distance of (but excluding) $r_i$.
 
 \item Draw a random sample (\underline{with} replacement) of $p$ items
 from $S$, resulting in values $a_{km}, k = 1,...,p, m = 1,...,p$.
@@ -155,7 +155,7 @@ W'_{ij} = a_{jj}
 neighborhood of $t$, defined by some metric.  Let $F$ denote the
 cdf of $(X,Y)$, and define $G_{t,\epsilon}$ to be the
 conditional cdf of $(X,Y)$, given that that vector is in
-$A_{t,\epsilon}$.  Finally, given $(X,Y)$, define {\it independent}
+$A_{t,\epsilon}$.  Finally, given $(X,Y)$, define \underline{independent}
 random variables $U$ and $V$ to be drawn randomly from the first- and
 second-coordinate marginal distributions of $G_{(X,Y),\epsilon}$,
 respectively.  Then
@@ -235,23 +235,24 @@ multivariate relationship of our variables}.  We simply sample {\it
 independently} from $S$, yet attain the correct {\it dependency}
 relationship among the variables.
 
-The bit of seeming similarity between this new method and data swapping
-is largely deceiving.  Clearly our method does do swapping of values,
-and in some sense our neighborhood approach relates somewhat to the fact
-that data swapping is typically conducted on a within-stratum basis,
-such as strata defined by age and race; a stratum then has some
-similarity to our neighborhoods. 
+% The bit of seeming similarity between this new method and data swapping
+% is largely deceiving.  Clearly our method does do swapping of values,
+% and in some sense our neighborhood approach relates somewhat to the fact
+% that data swapping is typically conducted on a within-stratum basis,
+% such as strata defined by age and race; a stratum then has some
+% similarity to our neighborhoods. 
 
-But actually the two methods are quite different.  First, with data
-swapping, records from one stratum are switched with those in {\it
-another} stratum, whereas in our method everything stays within the same
-neighborhood.  
+% But actually the two methods are quite different.  First, with data
+% swapping, records from one stratum are switched with those in {\it
+% another} stratum, whereas in our method everything stays within the same
+% neighborhood.  
+
 % This is very important, because with data swapping,
 % choosing the stratifying variables precludes analysts doing statistical
 % analyses that include those variables.
-Moreover, 
-our neighborhoods can grow or shrink in size, as opposed to
-the fixed stratum size in data swapping.  
+
+% Moreover, our neighborhoods can grow or shrink in size, as opposed to
+% the fixed stratum size in data swapping.  
 
 \section{Code and Tuning Parameters}
 
@@ -265,13 +266,14 @@ the following tuning tuning parameters:
 
 \item The distance metric.
 
-\item The proportion of modified records.  
+\item The proportion $q$ of modified records.  
 
 \end{itemize}
 
-Code implementing the method is provided on GitHub ({\it
-https://github.com/matloff/statdb}) to implement the method.  The call
-form is
+Code implementing the method is provided on GitHub, at {\it
+https://github.com/matloff/statdb}.\footnote{Publicly available software 
+for existing SDL methods includes sdcMicro on CRAN and WebSwap at NISS. }  
+The call form is
 
 \begin{lstlisting}
 nbrs(z, eps, modprop = 1, wts = NULL) 
@@ -293,7 +295,7 @@ As sample size $n$ grows (treating the original data as a sample from
 some population), one would want $\epsilon$ to become smaller, but this
 would not work well for the discrete variables.  With large $n$, the
 latter would come to dominate the distance metric, and one could not
-drop $\epsilon$ below some minimum threshhold.  Thus the {\bf wts}
+drop $\epsilon$ below some minimum threshhold.  The {\bf wts}
 argument provides the DSO with a tool to reduce that dominance, by
 allowing the weights of the discrete variables (or others) to decrease
 as $n$ increases.
@@ -311,8 +313,9 @@ setting those parameters daunting and bewildering.
 
 In SDL settings, though, the DSO may {\it welcome} the selection of
 tuning parameters. The goal is achieving a good balance between
-statistical accuracy of the released data and disclosure risk, so from
-the DSO's point of view, the more tuning parameters the better.
+statistical accuracy of the released data and disclosure risk, a
+difficult task, so from the DSO's point of view, the more tuning
+parameters the better.
 
 \subsection{Choices}
 
@@ -321,10 +324,10 @@ For a given set of tuning parameters, the DSO wishes to assess
 \begin{itemize}
 
 \item [(a)] whether the results of statistical  analyses on the released
-data set are reasonbly close to those of the original data, and 
+data set will be reasonbly close to those of the original data, and 
 
 \item [(b)]
-whether records that were at risk in the original data are masked 
+whether records that were at risk in the original data will be masked 
 sufficiently well in the released data.
 
 \end{itemize}
@@ -334,19 +337,19 @@ seen this in the literature, though it is likely that some DSOs have
 experimented with this approach.}  Though many authors have proposed
 global measures of distance between the original and released data sets,
 we suggest gauging the statistical accuracy of the latter in a more
-directmanner, motivted by the intended usage of the data, namely
+direct manner, motivated by the intended usage of the data, namely
 statistical analyses.
 
 In other words, under this approach the DSO would run several
 representative statistical analyses, say regression and principle
 components, on both the original and released data sets.  The DSO would
-then compare the resultss 
+then compare the results. 
 
 Our approach to issue (b) is similarly practical.  The DSO identifies
-some representative (sample) uniques, and then tracks what happens to
+some representative unique records, and then tracks what happens to
 them in the released data.  Have they been hidden sufficiently well?
 
-We advocate these methods (which of course can be used in conjunciton
+We advocate these methods (which of course can be used in conjunction
 with other methods) because they expose the system in ways that {\it
 directly} address the goals (a) and (b):
 
@@ -354,7 +357,7 @@ directly} address the goals (a) and (b):
 
 \item No matter what SDL method is used -- noise addition, cell
 suppression, data swapping, our method introduced in this paper, etc.
---- will necessarily result in some distortion to statistical analyses.
+--- it will necessarily result in some distortion to statistical analyses.
 The fact that two (empirical) distributions are close  of course does
 not imply that a given functional will have similar values on those two
 distributions.
@@ -377,7 +380,7 @@ In setting these parameters, the DSO must take into account not only the
 desired balance between (a) and (b) above, but also the values of $n$
 and $p$.  For fixed $p$, the larger $n$ is, the fewer the number of
 uniquely identifiable individuals in the data, and thus the decreased
-need for privacy measures.\footnote{As noted, we are treating the data
+need for privacy actions.\footnote{As noted, we are treating the data
 as a sample from some (tangible or conceptual) population.  As such, the
 notion of a {\it population unique}, seen in some of the SDL literature,
 doesn't apply.  If a combination of the categorical variables appears in
@@ -396,18 +399,29 @@ database, sampling 5000 records from this data.\footnote{Since this is
 just an illustration, the data were not cleaned, and some WageIncome
 values were 0 that probably should have been designated as missing.}
 
+%   library(regtools)
+%   data(prgeng)
+%   pe <- prgeng
+%   # dummies for MS, PhD
+%   pe$ms <- as.integer(pe$educ == 14)
+%   pe$phd <- as.integer(pe$educ == 16)
+%   # computer occupations only
+%   pecs <- pe[pe$occ >= 100 & pe$occ <= 109,]
+%   pecs1 <- pecs[,c(1,7,9,12,13,8)]
+%   set.seed(99999)
+%   p1 <- pecs1[sample(1:nrow(pecs1),5000),]
+
 The call used was
+% set.seed(999999); p1p <- nbrs(p1,eps=0.6,wts=c(2,4,5,rep(0.2,3))); p1pc <- na.omit(p1p); p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
 
 \begin{lstlisting}
-> p1p <- nbrs(p1,eps=0.3,wts=c(2,4,5,rep(0.05,3)))
+> p1p <- nbrs(p1,eps=0.3,wts=c(2,4,5,rep(0.2,3)))
 \end{lstlisting}
 
-To gauge how close this new version of the data was to the original, we 
+To gauge how close this new version of the data was to the original, we
 ran a linear regression analysis, predicting WageIncome from Age,
-Gender, WeeksWorked, MSDegree and PhD.  
-% set.seed(999999); p1p <- nbrs(p1,eps=0.6,wts=c(2,4,5,rep(0.2,3))); p1pc <- na.omit(p1p); p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
-The estimated coefficients
-for the original and modified data were
+Gender, WeeksWorked, MSDegree and PhD.  The estimated coefficients for
+the original and modified data were
 
 % \begin{table}
 % \begin{center}
@@ -423,7 +437,18 @@ released & 466.1 & -8423.2 & 1270.7 & 18593.9 & 22161.4 \\ \hline
 % \label{eps1}
 % \end{table}
 
-The results fairly good.  What about disclosure risk?
+The results are fairly good, differing between 1\% and 12\% from the
+original.  This is especially true when viewed in the context of the
+standard errors of the original:
+
+\begin{tabular}{|r|r|r|r|r|}
+\hline
+Age & Gender & WeeksWorked & MS & PhD \\ \hline 
+52.8 & 1301.9 & 38.6 & 1453.7 & 3627.7 \\ \hline
+\end{tabular}
+
+Presumably we could do better with other values of the tuning
+parameters.  But what about disclosure risk?
 
 In the original data set, there was one female worker with age under 31:
 
@@ -444,7 +469,7 @@ How well was she hidden in the modified data?  Quite well, it turns out:
 
 There is one person listed in the released data of the given description
 (female, PhD, age $<$ 31).  But she is listed as having an income of
-\$50000 rather than \$10000.  In fact, it is a different person, worker
+\$50,000 rather than \$100,000.  In fact, it is a different person, worker
 number 12522, not 7997.\footnote{Of course, ID numbers would be suppressed.}
 Where is the latter now?
 
@@ -458,12 +483,17 @@ Where is the latter now?
 
 Ah, she became a man!  That certainly hides her.  
 
-There are now four women fitting the given conditions, none of which was
-the one we highlighted in the original data, worker number
-7997
+This is just a first try.  The DSO could continue, experimenting with
+various other values of the tuning parameters.  For instance,
+we tried raising the weight of the categorical variables:
+% set.seed(999999); p1p <- nbrs(p1,eps=0.6,wts=c(2,4,5,rep(0.3,3)))
 
-Next, we tried $\epsilon = 0.2$.  The new regression coefficients were
 
+\begin{lstlisting}
+> p1p <- nbrs(p1,eps=0.6,wts=c(2,4,5,rep(0.3,3)))
+\end{lstlisting}
+
+The new regression coefficients were generally good:
 
 % \begin{table}
 % \begin{center}
@@ -471,7 +501,7 @@ Next, we tried $\epsilon = 0.2$.  The new regression coefficients were
 \begin{tabular}{|r|r|r|r|r|r|}
 \hline
 data & Age & Gender & WeeksWorked & MS & PhD \\ \hline 
-relased & 520  & -9063  & 1278 & 18342 & 23532 \\ \hline 
+relased & 506.3  & -9323.1  & 1289.8 & 17684.1 & 22019.3 \\ \hline 
 \end{tabular}
 % \end{center}
 % \caption{}
@@ -479,17 +509,42 @@ relased & 520  & -9063  & 1278 & 18342 & 23532 \\ \hline
 % \end{table}
 
 Now there were no workers in the modified data set satisfying
-the given conditions, so again worker 7997 is protected:
+the given conditions: 
 
 \begin{lstlisting}
+> p1pc <- na.omit(p1p) 
 > p1pc[p1pc$sex==2 & p1pc$phd==1 & p1pc$age < 31,]
 [1] age     sex     wkswrkd ms      phd     wageinc
 <0 rows> (or 0-length row.names)
 \end{lstlisting}
 
-This of course just barely scratches the surface of the various tuning
+What happened was that worker 7997 had no close neighbors other than
+herself, so her data became NAs:
+
+\begin{lstlisting}
+> p1p[3236,]
+     age sex wkswrkd ms phd wageinc
+7997  NA  NA      NA NA  NA      NA
+\end{lstlisting}
+
+So again this worker 7997 was protected.
+
+This of course just begins to explore the various tuning
 parameter values that the DSO could experiment with, in addition to
 doing so on other types of analyses, say principle components analysis.
+
+% p1ai <- p1[,c(1,3,6)]
+% aicov <- cov(p1ai)
+% nz <- rmvnorm(5000,sigma=aicov)
+% p1ai1 <- p1ai + 0.1 * nz
+% lm(wageinc ~ ., data=p1ai)
+% lm(wageinc ~ ., data=p1ai1)
+% p1ai[p1ai$age > 80 & p1ai$wkswrkd > 50,]
+% p1ai1[p1ai1$age > 80 & p1ai1$wkswrkd > 50,]
+% p1ai3 <- p1ai + 0.3 * nz
+% lm(wageinc ~ ., data=p1ai3)
+% p1ai3[p1ai1$age > 80 & p1ai3$wkswrkd > 50,]
+
 
 
 % library(regtools)
@@ -514,6 +569,11 @@ doing so on other types of analyses, say principle components analysis.
 
 \section{Discussion}
 
+We have proposed a new SDL method that work for mixed
+continuous/categorical data and does not require estimation of
+multivariate structure.  Our brief preliminary exploration seems
+promising.
+
 Note that ``a little bit of privacy can go a long way'':  As long as the
 intruder knows that the data have been modified (even for the
 nonsensitive variables), there may be enough doubt in his/her mind as to
@@ -530,13 +590,14 @@ This approach does require fairly large data sets, so that for example
 the set $S$ contains some female workers.  One might even allow the
 value of $\epsilon$ to vary from record to record.
 
-\section{Work to Be Done}
+\section{Future Work}
 
-The presentation here is of course preliminary, and many aspects need to
-be explored.  The method will be tried on a wide variety of data sets;
-effects of varying the tuning parameters will be explored; the possible
-usefulness of making the values of the tuning parameters vary from one
-record to another will be investigated; and so on.
+The presentation here is of course preliminary, just barely scratching
+the surface; many aspects need to be explored.  The method will be tried
+on a wide variety of data sets; effects of varying the tuning parameters
+will be explored; the possible usefulness of making the values of the
+tuning parameters vary from one record to another will be investigated;
+and so on.
 
 \begin{thebibliography}{}
 
