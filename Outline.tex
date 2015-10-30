@@ -146,9 +146,24 @@ from $S$, resulting in values $a_{km}, k = 1,...,p, m = 1,...,p$.
 W'_{ij} = a_{jj}
 \end{equation}
 
+and store the released, modified version of $r_i$ as
+
+\begin{equation}
+r_i' = 
+r_i = (W_{i1}',...,W_{ip}')
+\end{equation}
+
 \end{itemize}
 
 \section{Theoretical Justification}
+
+Note carefully that the procedure described in the last section {\it
+does not rely on knowledge or estimation of the multivariate
+distribution of our data}, a key advantage of the methodology we are
+proposing here.  On the contrary, the components of $r_i'$ are generated
+independently.  The following result shows that the multivariate
+structure is (approximately) preserved anyway.  For expositional
+convenience, the theorem and proof will be stated for the case $p = 1$.
 
 {\bf Theorem:}  Consider a bivariate random vector $(X,Y)$ and $\epsilon >
 0$.  For any $t$ in $R^2$, let $A_{t,\epsilon}$ denote the $\epsilon$
@@ -171,9 +186,9 @@ U \leq a \textrm{ and } V \leq b
 
 for all $-\infty < a,b < \infty$.  
 
-In other words, as $\epsilon$ goes to 0, the distribution of $(U,V)$
-goes to that of $(X,Y)$, {\it even though $U$ and $V$ are conditionally
-independent}.
+In other words, as $\epsilon$ goes to 0, the unconditional bivariate
+distribution of $(U,V)$ goes to that of $(X,Y)$, {\it even though $U$
+and $V$ are conditionally independent}.
 
 {\bf Proof:}
 
@@ -219,7 +234,7 @@ P(V \leq b ~|~ X,Y )
 &=& E \left [
 1_{X \leq a \textrm{ and } Y \leq b}
 \right ] \\
-&=& P(U \leq a \textrm{ and } V \leq b) \\
+&=& P(X \leq a \textrm{ and } Y \leq b) \\
 &=& F(a,b)
 \end{eqnarray}
 
