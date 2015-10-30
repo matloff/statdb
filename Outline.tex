@@ -294,10 +294,10 @@ The call form is
 nbrs(z, eps, modprop = 1, wts = NULL) 
 \end{lstlisting}
 
-where {\bf eps} is $\epsilon$, {\bf modprop} is $q$ in the algorithm
-in Section \ref{overview}, and the {\bf wts} argument controls the
-distance metric, to be explained shortly.  The return value is the
-released data set.
+where {\bf eps} is $\epsilon$, {\bf modprop} is $q$, and the {\bf wts}
+argument exerts some control on the distance metric, to be explained
+shortly.  The return value is the released data set, in the form of an R
+data frame (which could be converted to SQL etc.).
 
 It is assumed that all categorical variables have been converted to
 dummy variables.  Ordinary Euclidean distance is used on the scaled
@@ -347,13 +347,13 @@ sufficiently well in the released data.
 
 \end{itemize}
 
-Regarding (a), we propose an operational approach.\footnote{We have not
-seen this in the literature, though it is likely that some DSOs have
-experimented with this approach.}  Though many authors have proposed
-global measures of distance between the original and released data sets,
-we suggest gauging the statistical accuracy of the latter in a more
-direct manner, motivated by the intended usage of the data, namely
-statistical analyses.
+For both (a) and (b), we propose an operational approach.\footnote{We
+have not seen this in the literature, though it is likely that some DSOs
+have experimented with this approach.}  For (a), though many authors have
+proposed global measures of distance between the original and released
+data sets, we suggest gauging the statistical accuracy of the latter in
+a more direct manner, motivated by the intended usage of the data,
+namely statistical analyses.
 
 In other words, under this approach the DSO would run several
 representative statistical analyses, say regression and principle
@@ -361,8 +361,8 @@ components analysis (PCA), on both the original and released data sets.
 The DSO would then compare the results. 
 
 Our approach to issue (b) is similarly practical.  The DSO identifies
-some representative unique records, and then tracks what happens to
-them in the released data.  Have they been hidden sufficiently well?
+some representative unique or rare records, and then tracks what happens
+to them in the released data.  Have they been hidden sufficiently well?
 
 We advocate these methods (which of course can be used in conjunction
 with other methods) because they expose the system in ways that {\it
@@ -377,15 +377,16 @@ The fact that two (empirical) distributions are close  of course does
 not imply that a given functional will have similar values on those two
 distributions.
 
-Thus is vital to get an idea {\it how much} distortion the statistical
-users of the data may need to tolerate.  This is what our approach
-addresses.
+Thus is vital to get a {\it direct} idea of how much distortion the
+statistical users of the data may need to tolerate.  This is what our
+approach addresses.
 
 \item An example in some of the SDL literature has involved preserving
 the privacy of the lone female electrical engineer in a company
 employee database.  The DSO can pose questions like this for their given
 data set, and find that, say,  while the female EE was hidden, the lone
-programmer over age 50 was not.
+programmer over age 50 was not, and then continue to search for good
+combinations of the tuning parameters..
 
 \end{itemize}
 
@@ -453,8 +454,8 @@ released & 466.1 & -8423.2 & 1270.7 & 18593.9 & 22161.4 \\ \hline
 % \end{table}
 
 The results are fairly good, differing between 1\% and 12\% from the
-original.  This is especially true when viewed in the context of the
-standard errors of the original:
+original.  And the differences are not bad when viewed in the context of
+the standard errors of the original:
 
 \begin{tabular}{|r|r|r|r|r|}
 \hline
@@ -533,7 +534,7 @@ the given conditions:
 <0 rows> (or 0-length row.names)
 \end{lstlisting}
 
-What happened was that worker 7997 had no close neighbors other than
+What happened was that worker 7997? She had no close neighbors other than
 herself, so her data became NAs:
 
 \begin{lstlisting}
@@ -589,8 +590,8 @@ of the lone female electrical engineer in an employee database.  Our
 concern there is that an intruder may know that she is in the database,
 and may know enough identifying information about her that he may be
 able to determine which record is hers, and thus gain access to
-sensitive information.  But in some cases there mere knowledge that a
-given individual is actually in the database can itself be sensitive
+sensitive information.  But in some cases mere knowledge that a given
+individual is actually in the database can itself be sensitive
 information.
 
 For instance, consider a cancer patient who wishes to participate in a
@@ -600,7 +601,8 @@ patient was born in Tonga, and that the intruder is fairly sure that
 there is only person in the community with that characteristic.  Our
 proposed method may result in some record in the released data showing a
 birthplace of Tonga, in which case the nefarious user knows that the
-patient does have the disease.  In such a situation, the DSO may
+patient does have the disease --- even if the record in the released
+data is not for the original patient.  In such a situation, the DSO may
 consider excluding this person from the database, or adjusting some of
 the tuning parameters.
 
@@ -609,7 +611,9 @@ the tuning parameters.
 We have proposed a new SDL method that works for mixed
 continuous/categorical data and does not require estimation of
 multivariate structure.  Our brief preliminary exploration seems
-promising.
+promising.  Much more investigation needs to be done, with different
+data sets and more thorough search for good combinations of tuning
+parameters.
 
 Note that ``a little bit of privacy can go a long way'':  As long as the
 intruder knows that the data have been modified (even for the
@@ -617,6 +621,7 @@ nonsensitive variables), there may be enough doubt in his/her mind as to
 make the data useless for nefarious purposes (while still being very
 useful for legitimate purposes).  Thus, values less than 1.0 for $q$,
 the proportion of modified records, will be feasible in some settings.
+Perhaps a taxonomy of such settings could be developed.
 
 In databases with large $p$, one must take into account the Curse of
 Dimensionality \cite{beyer}.  The DSO may choose to use a weighted
@@ -624,21 +629,20 @@ distance metric, with the weights going to 0 as the variable index goes
 to infinity \cite{matloff2015}.
 
 In general, the choice of $\epsilon$ must also be made carefully This
-approach does require fairly large data sets, so that for example the
-set $S$ contains some female workers.  One might even allow the value of
-$\epsilon$ to vary from record to record.  The method will be tried on a
-wide variety of data sets; effects of varying the tuning parameters will
-be explored; the possible usefulness of making the values of the tuning
-parameters vary from one record to another will be investigated; and so
-on.
+approach does require fairly large data sets, so that for instance the
+set $S$ contains some female workers in our examples above.  One avenue
+of future research would be to investigate allowing the value of
+$\epsilon$ to vary from record to record.  
 
 Another point to be investigated concerns records on the fringes of the
 data, say far from the centroid under our metric $\mathcal{M}$.  For
 such a record, the neighborhood will likely be empty unless we make
-$\epsilon$ large, which would create its own problems.  Alternatively,
-we could use the k-nearest neighbor method to form our neighborhoods,
-guaranteeing that they will be nonempty, but our neighborhoods may again
-be very large for records on the fringes.
+$\epsilon$ large, which would create its own problems in terms of
+statistical accuracy; observations on the fringes of a data set tend to
+have high leverage.  Alternatively, we could use the k-nearest neighbor
+method to form our neighborhoods, guaranteeing that they will be
+nonempty, but our neighborhoods may again be very large for records on
+the fringes.
 
 Accordingly, one aspect of future work will involve the efficacy of
 encouraging users of the released data to use outlier-robust methods,
