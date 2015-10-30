@@ -9,7 +9,7 @@
 \setlength{\parindent}{0in}
 \setlength{\parskip}{0.1in}
 
-\title{A Method for Avoiding Data Disclosure While
+\title{A New Method for Avoiding Data Disclosure While
 Automatically Preserving Multivariate Relations}
 \author{
 Norman Matloff\thanks{Dept. of Computer Science, University of
@@ -24,33 +24,33 @@ Patrick Tendick\thanks{Avaya Corp.}
 
 \begin{abstract}
 
-\noindent 
-Statistical disclosure limitation (SDL) methods aim to provide analysts
-general access to a data set while limiting the risk of disclosure of
-individual records.  Many methods in the existing literature are 
-aimed only at the case of univariate distributions, but the 
-multivariate case is crucial, since most statistical analyses are 
-multivariate in nature.  Yet preserving the multivariate structure of 
+\noindent Statistical disclosure limitation (SDL) methods aim to provide
+analysts general access to a data set while limiting the risk of
+disclosure of individual records.  Many methods in the existing
+literature are aimed only at the case of univariate distributions, but
+the multivariate case is crucial, since most statistical analyses are
+multivariate in nature.  Yet preserving the multivariate structure of
 the data can be challenging, especially when both continuous and
-categorical variables are present.  Here we present a new SDL method 
+categorical variables are present.  Here we present a new SDL method
 that automatically attains the correct multivariate structure,
-regardless of whether the data are continuous, categorical or mixed.  In
-addition, operational methods for assessing data quality and risk will
-be explored.
+regardless of whether the data are continuous, categorical or mixed,
+and without requiring the database administrator to estimate that
+multivariate structure.  In addition, operational methods for assessing
+data quality and risk will be explored.
 
 \end{abstract}
 
 \section{Introduction}
 
 Statistical disclosure limitation (SDL) methods aim to provide analysts
-general access to a data set while limiting the risk of disclosure of
+statistical access to a data set while limiting the risk of disclosure of
 individual records.  Common methods include noise addition, swapping of
 parts of records, replacing data by synthetic equivalents, suppression
 of small cells in contingency tables, and so on \cite{duncan}. 
 
 % (Duncan, 2011)..
 
-Long the field of statistical research, in recent years SDL issues have
+Long a field of statistical research, in recent years SDL issues have
 attracted the interest of computer scientists \cite{dwork}.  There has
 been a marked contrast in the approaches taken by the two communities:
 The statistical view is that of serving research analysts who wish to do
@@ -150,7 +150,7 @@ and store the released, modified version of $r_i$ as
 
 \begin{equation}
 r_i' = 
-r_i = (W_{i1}',...,W_{ip}')
+(W_{i1}',...,W_{ip}')
 \end{equation}
 
 \end{itemize}
@@ -165,15 +165,15 @@ independently.  The following result shows that the multivariate
 structure is (approximately) preserved anyway.  For expositional
 convenience, the theorem and proof will be stated for the case $p = 1$.
 
-{\bf Theorem:}  Consider a bivariate random vector $(X,Y)$ and $\epsilon >
-0$.  For any $t$ in $R^2$, let $A_{t,\epsilon}$ denote the $\epsilon$
-neighborhood of $t$, defined by some metric.  Let $F$ denote the
-cdf of $(X,Y)$, and define $G_{t,\epsilon}$ to be the
+{\bf Theorem:}  Consider a bivariate random vector $(X,Y)$ and $\epsilon
+> 0$.  For any $t$ in $\mathcal{R}^2$, let $A_{t,\epsilon}$ denote the
+$\epsilon$ neighborhood of $t$, defined by some metric $\mathcal{M}$.
+Let $F$ denote the cdf of $(X,Y)$, and define $G_{t,\epsilon}$ to be the
 conditional cdf of $(X,Y)$, given that that vector is in
-$A_{t,\epsilon}$.  Finally, given $(X,Y)$, define \underline{independent}
-random variables $U$ and $V$ to be drawn randomly from the first- and
-second-coordinate marginal distributions of $G_{(X,Y),\epsilon}$,
-respectively.  Then
+$A_{t,\epsilon}$.  Finally, given $(X,Y)$, define
+\underline{independent} random variables $U$ and $V$ to be drawn
+randomly from the first- and second-coordinate marginal distributions of
+$G_{(X,Y),\epsilon}$, respectively.  Then
 
 \begin{equation}
 \lim_{\epsilon \rightarrow 0}
@@ -267,7 +267,7 @@ relationship among the variables.
 % analyses that include those variables.
 
 % Moreover, our neighborhoods can grow or shrink in size, as opposed to
-% the fixed stratum size in data swapping.  
+% the fixed stratum size in data swapping.
 
 \section{Code and Tuning Parameters}
 
@@ -279,7 +279,7 @@ the following tuning tuning parameters:
 
 \item The neighborhood radius, $\epsilon$.
 
-\item The distance metric.
+\item The distance metric $\mathcal{M}$.
 
 \item The proportion $q$ of modified records.  
 
@@ -357,8 +357,8 @@ statistical analyses.
 
 In other words, under this approach the DSO would run several
 representative statistical analyses, say regression and principle
-components, on both the original and released data sets.  The DSO would
-then compare the results. 
+components analysis (PCA), on both the original and released data sets.
+The DSO would then compare the results. 
 
 Our approach to issue (b) is similarly practical.  The DSO identifies
 some representative unique records, and then tracks what happens to
@@ -582,9 +582,31 @@ doing so on other types of analyses, say principle components analysis.
 % which(rownames(p1p) == 5016)
 % p1p[120,]
 
-\section{Discussion}
+\section{Other Types of Privacy}
 
-We have proposed a new SDL method that work for mixed
+Another type of privacy may need to be considered.  Think of our example
+of the lone female electrical engineer in an employee database.  Our
+concern there is that an intruder may know that she is in the database,
+and may know enough identifying information about her that he may be
+able to determine which record is hers, and thus gain access to
+sensitive information.  But in some cases there mere knowledge that a
+given individual is actually in the database can itself be sensitive
+information.
+
+For instance, consider a cancer patient who wishes to participate in a
+clinical trial, but is concerned that his diseased status may become
+public knowledge.  Suppose further that an intruder knows that this
+patient was born in Tonga, and that the intruder is fairly sure that
+there is only person in the community with that characteristic.  Our
+proposed method may result in some record in the released data showing a
+birthplace of Tonga, in which case the nefarious user knows that the
+patient does have the disease.  In such a situation, the DSO may
+consider excluding this person from the database, or adjusting some of
+the tuning parameters.
+
+\section{Discussion and Future Work}
+
+We have proposed a new SDL method that works for mixed
 continuous/categorical data and does not require estimation of
 multivariate structure.  Our brief preliminary exploration seems
 promising.
@@ -593,26 +615,34 @@ Note that ``a little bit of privacy can go a long way'':  As long as the
 intruder knows that the data have been modified (even for the
 nonsensitive variables), there may be enough doubt in his/her mind as to
 make the data useless for nefarious purposes (while still being very
-useful for legitimate purposes).
+useful for legitimate purposes).  Thus, values less than 1.0 for $q$,
+the proportion of modified records, will be feasible in some settings.
 
 In databases with large $p$, one must take into account the Curse of
 Dimensionality \cite{beyer}.  The DSO may choose to use a weighted
 distance metric, with the weights going to 0 as the variable index goes
 to infinity \cite{matloff2015}.
 
-In general, the choice of $\epsilon$ must also be made carefully
-This approach does require fairly large data sets, so that for example
-the set $S$ contains some female workers.  One might even allow the
-value of $\epsilon$ to vary from record to record.
+In general, the choice of $\epsilon$ must also be made carefully This
+approach does require fairly large data sets, so that for example the
+set $S$ contains some female workers.  One might even allow the value of
+$\epsilon$ to vary from record to record.  The method will be tried on a
+wide variety of data sets; effects of varying the tuning parameters will
+be explored; the possible usefulness of making the values of the tuning
+parameters vary from one record to another will be investigated; and so
+on.
 
-\section{Future Work}
+Another point to be investigated concerns records on the fringes of the
+data, say far from the centroid under our metric $\mathcal{M}$.  For
+such a record, the neighborhood will likely be empty unless we make
+$\epsilon$ large, which would create its own problems.  Alternatively,
+we could use the k-nearest neighbor method to form our neighborhoods,
+guaranteeing that they will be nonempty, but our neighborhoods may again
+be very large for records on the fringes.
 
-The presentation here is of course preliminary, just barely scratching
-the surface; many aspects need to be explored.  The method will be tried
-on a wide variety of data sets; effects of varying the tuning parameters
-will be explored; the possible usefulness of making the values of the
-tuning parameters vary from one record to another will be investigated;
-and so on.
+Accordingly, one aspect of future work will involve the efficacy of
+encouraging users of the released data to use outlier-robust methods,
+such as robust regression and robust PCA.
 
 \begin{thebibliography}{}
 
@@ -672,6 +702,9 @@ Statistics}, 4,3, 1291-1310.
 \bibitem{tendick} P. Tendick and N. Matloff (1994).  A Modified Random
 Perturbation Method for Database Security, {\it ACM Transactions on
 Database Systems}, 19, 47-63.
+
+% \bibitem{wasserman} 
+% Wasserman, L. (2007).  {\it}All of Nonparametric Statistics}, Springer. 
 
 \bibitem{winkler} W. Winkler (2005). {\it Microdata Confidentiality
 References}, {\it
